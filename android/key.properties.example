@@ -1,0 +1,8 @@
+# PhaseTwo Android Keystore Configuration Template
+# IMPORTANT: DO NOT commit the actual key.properties file with real credentials to version control.
+# Copy this file to "android/key.properties" and fill in your real keystore details:
+
+storePassword=YOUR_KEYSTORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=upload
+storeFile=upload-keystore.jks
