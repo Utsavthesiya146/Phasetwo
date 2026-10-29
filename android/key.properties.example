@@ -1,8 +1,8 @@
-# PhaseTwo Android Keystore Configuration Template
-# IMPORTANT: DO NOT commit the actual key.properties file with real credentials to version control.
-# Copy this file to "android/key.properties" and fill in your real keystore details:
+# Google Play Upload Signing Configuration Template
+# DO NOT commit the actual key.properties with real passwords or private keys.
+# Keep key.properties in your local environment and add to .gitignore.
 
-storePassword=YOUR_KEYSTORE_PASSWORD
-keyPassword=YOUR_KEY_PASSWORD
+storePassword=YOUR_UPLOAD_KEYSTORE_PASSWORD
+keyPassword=YOUR_UPLOAD_KEY_PASSWORD
 keyAlias=upload
-storeFile=upload-keystore.jks
+storeFile=app/upload-keystore.jks

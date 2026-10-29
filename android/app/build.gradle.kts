@@ -34,14 +34,21 @@ android {
 
     signingConfigs {
         create("release") {
-            val keyAliasProp = keystoreProperties.getProperty("keyAlias")
-            val keyPasswordProp = keystoreProperties.getProperty("keyPassword")
-            val storeFileProp = keystoreProperties.getProperty("storeFile")
-            val storePasswordProp = keystoreProperties.getProperty("storePassword")
-            if (keyAliasProp != null && keyPasswordProp != null && storeFileProp != null && storePasswordProp != null) {
+            if (keystorePropertiesFile.exists()) {
+                val keyAliasProp = keystoreProperties.getProperty("keyAlias")
+                val keyPasswordProp = keystoreProperties.getProperty("keyPassword")
+                val storeFileProp = keystoreProperties.getProperty("storeFile")
+                val storePasswordProp = keystoreProperties.getProperty("storePassword")
+                if (keyAliasProp.isNullOrBlank() || keyPasswordProp.isNullOrBlank() || storeFileProp.isNullOrBlank() || storePasswordProp.isNullOrBlank()) {
+                    throw GradleException("Production release signing error: 'key.properties' is missing required fields (storeFile, storePassword, keyAlias, keyPassword).")
+                }
+                val keystoreFile = rootProject.file(storeFileProp)
+                if (!keystoreFile.exists()) {
+                    throw GradleException("Production release signing error: Upload keystore file '${keystoreFile.absolutePath}' not found.")
+                }
                 keyAlias = keyAliasProp
                 keyPassword = keyPasswordProp
-                storeFile = rootProject.file(storeFileProp)
+                storeFile = keystoreFile
                 storePassword = storePasswordProp
             }
         }
@@ -49,16 +56,10 @@ android {
 
     buildTypes {
         release {
-            val storeFileProp = keystoreProperties.getProperty("storeFile")
-            val hasValidReleaseKeystore = keystorePropertiesFile.exists() &&
-                storeFileProp != null &&
-                rootProject.file(storeFileProp).exists()
-
-            signingConfig = if (hasValidReleaseKeystore) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
+            if (!keystorePropertiesFile.exists()) {
+                throw GradleException("Production release signing error: 'android/key.properties' not found. Debug-signing fallback has been removed. You must configure secure upload signing credentials for release builds.")
             }
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }

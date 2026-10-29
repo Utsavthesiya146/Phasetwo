@@ -332,6 +332,16 @@ class AppDrawer extends StatelessWidget {
                       onOpenUrl(AppConfig.termsUrl);
                     },
                   ),
+                  _buildDrawerTile(
+                    icon: Icons.delete_outline_rounded,
+                    title: 'Account & Data Deletion',
+                    badge: 'Compliance',
+                    badgeColor: AppConfig.errorRed,
+                    onTap: () {
+                      Navigator.pop(context);
+                      _showAccountDeletionDialog(context);
+                    },
+                  ),
                   const Divider(height: 16, color: AppConfig.cardBorder),
                   if (isAuthenticated)
                     _buildDrawerTile(
@@ -488,4 +498,148 @@ class AppDrawer extends StatelessWidget {
       onTap: onTap,
     );
   }
+
+  void _showAccountDeletionDialog(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppConfig.errorRed.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.delete_forever_rounded,
+                  color: AppConfig.errorRed,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Account Deletion',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppConfig.textDark,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                const Text(
+                  'Under PhaseTwo data privacy governance and app store requirements, you have the right to request deletion of your account and personal data.',
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    color: AppConfig.textSecondary,
+                    height: 1.45,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppConfig.backgroundLight,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppConfig.cardBorder),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      const Text(
+                        'What will be deleted:',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: AppConfig.textDark,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        '• Candidate profile, resume & application history\n'
+                        '• Employer profile & active/archived job postings\n'
+                        '• Account credentials and authentication records',
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          color: AppConfig.textMuted,
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Contact Support: ${AppConfig.supportEmail}',
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: AppConfig.primaryDark,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Account deletion requests are processed within 30 days of verification.',
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    fontStyle: FontStyle.italic,
+                    color: AppConfig.textMuted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: AppConfig.textMuted),
+              ),
+            ),
+            OutlinedButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                onOpenUrl(AppConfig.privacyUrl);
+              },
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppConfig.primaryDark),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('Privacy Policy'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                onOpenUrl(AppConfig.accountDeletionUrl);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppConfig.errorRed,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('Request Deletion'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
+

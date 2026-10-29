@@ -43,6 +43,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+android/build/
+/temp/
 
 # Android Signing Keystore and Secrets
 **/key.properties

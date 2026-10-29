@@ -85,6 +85,8 @@ class AppConfig {
   static const String employerDashboardUrl = 'https://www.phasetwo.ca/employer/dashboard';
   static const String privacyUrl = 'https://www.phasetwo.ca/privacy_policy';
   static const String termsUrl = 'https://www.phasetwo.ca/terms_conditions';
+  static const String accountDeletionUrl = 'https://www.phasetwo.ca/contact';
+  static const String supportEmail = 'info@phasetwo.ca';
   static const String forgotPasswordUrl = 'https://www.phasetwo.ca/Forgot_password';
   static const String browseJobsUrl = 'https://www.phasetwo.ca/browse_jobs';
   static const String categoriesUrl = 'https://www.phasetwo.ca/categorys';
