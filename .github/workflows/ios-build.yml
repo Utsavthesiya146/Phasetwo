@@ -42,12 +42,27 @@ jobs:
       - name: 6. Run Automated Tests
         run: flutter test
 
+      - name: 6.5. Install CocoaPods Dependencies
+        run: |
+          if [ ! -f ios/Flutter/Generated.xcconfig ]; then
+            echo "FLUTTER_ROOT=$FLUTTER_ROOT" > ios/Flutter/Generated.xcconfig
+            echo "FLUTTER_APPLICATION_PATH=$(pwd)" >> ios/Flutter/Generated.xcconfig
+            echo "FLUTTER_TARGET=lib/main.dart" >> ios/Flutter/Generated.xcconfig
+            echo "FLUTTER_BUILD_DIR=build" >> ios/Flutter/Generated.xcconfig
+            echo "FLUTTER_BUILD_NAME=1.0.0" >> ios/Flutter/Generated.xcconfig
+            echo "FLUTTER_BUILD_NUMBER=1" >> ios/Flutter/Generated.xcconfig
+          fi
+          cd ios
+          pod install --repo-update
+          cd ..
+
       - name: 7. Build Unsigned iOS Release
         env:
           CODE_SIGNING_ALLOWED: "NO"
           CODE_SIGNING_REQUIRED: "NO"
           CODE_SIGN_IDENTITY: ""
         run: |
+          set -o pipefail
           flutter build ios --release --no-codesign 2>&1 | tee build_output.log
 
       - name: Diagnostic Annotations On Build Failure
@@ -60,14 +75,12 @@ jobs:
 
       - name: 8. Package Unsigned IPA Artifact
         run: |
-          echo "=== Searching for Runner.app in workspace ==="
-          APP_PATH=$(find . -name "Runner.app" -type d | head -n 1)
-          LOG_TAIL=$(tail -n 5 build_output.log | tr '\n' ' ')
-          echo "::notice title=Build Log Tail::$LOG_TAIL"
-          echo "::notice title=Found App Path::$APP_PATH"
+          echo "=== Searching for compiled Runner.app ==="
+          APP_PATH=$(find build -name "Runner.app" -type d | head -n 1)
+          echo "Discovered compiled Runner.app at: ${APP_PATH}"
 
           if [ -z "$APP_PATH" ]; then
-            echo "::error title=Runner App Not Found::No Runner.app found in workspace"
+            echo "::error title=Runner App Not Found::No Runner.app found in build directory"
             find build -maxdepth 4
             exit 1
           fi
@@ -91,7 +104,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: PhaseTwo-iOS-Runner-App
-          path: "**/Runner.app"
+          path: "build/**/Runner.app"
           if-no-files-found: ignore
           retention-days: 14
 
