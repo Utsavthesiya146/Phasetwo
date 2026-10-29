@@ -60,15 +60,20 @@ jobs:
 
       - name: 8. Package Unsigned IPA Artifact
         run: |
-          RUNNER_PATH=$(find build/ios -name "Runner.app" -type d | head -n 1)
-          echo "Discovered compiled Runner.app at: ${RUNNER_PATH}"
-          if [ -z "$RUNNER_PATH" ]; then
-            echo "::error::Runner.app was not found in build/ios"
-            find build/ios -maxdepth 4
+          echo "=== Searching for Runner.app in workspace ==="
+          APP_PATH=$(find . -name "Runner.app" -type d | head -n 1)
+          LOG_TAIL=$(tail -n 5 build_output.log | tr '\n' ' ')
+          echo "::notice title=Build Log Tail::$LOG_TAIL"
+          echo "::notice title=Found App Path::$APP_PATH"
+
+          if [ -z "$APP_PATH" ]; then
+            echo "::error title=Runner App Not Found::No Runner.app found in workspace"
+            find build -maxdepth 4
             exit 1
           fi
+
           mkdir -p build/ios/Payload
-          cp -R "$RUNNER_PATH" build/ios/Payload/
+          cp -R "$APP_PATH" build/ios/Payload/
           cd build/ios
           zip -qr -y PhaseTwo-iOS-Unsigned-Release.ipa Payload
           IPA_SIZE=$(ls -lh PhaseTwo-iOS-Unsigned-Release.ipa | awk '{print $5}')
@@ -86,7 +91,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: PhaseTwo-iOS-Runner-App
-          path: build/ios/iphoneos/Runner.app
+          path: "**/Runner.app"
+          if-no-files-found: ignore
           retention-days: 14
 
       - name: 10. Optional Apple Signing & Export
