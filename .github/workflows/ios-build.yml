@@ -68,17 +68,25 @@ jobs:
             exit 1
           fi
           mkdir -p build/ios/Payload
-          cp -r "$RUNNER_PATH" build/ios/Payload/
+          cp -R "$RUNNER_PATH" build/ios/Payload/
           cd build/ios
-          zip -qr PhaseTwo-iOS-Unsigned-Release.ipa Payload
+          zip -qr -y PhaseTwo-iOS-Unsigned-Release.ipa Payload
+          IPA_SIZE=$(ls -lh PhaseTwo-iOS-Unsigned-Release.ipa | awk '{print $5}')
+          echo "::notice title=Unsigned IPA Artifact::PhaseTwo-iOS-Unsigned-Release.ipa created successfully with size ${IPA_SIZE} at $(pwd)/PhaseTwo-iOS-Unsigned-Release.ipa"
           cd ../..
-          ls -la build/ios/PhaseTwo-iOS-Unsigned-Release.ipa
 
-      - name: 9. Upload Unsigned iOS Artifact
+      - name: 9. Upload Unsigned iOS IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: PhaseTwo-iOS-Unsigned-Release
+          name: PhaseTwo-iOS-Unsigned-Release-IPA
           path: build/ios/PhaseTwo-iOS-Unsigned-Release.ipa
+          retention-days: 14
+
+      - name: 9b. Upload Compiled Runner.app Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhaseTwo-iOS-Runner-App
+          path: build/ios/iphoneos/Runner.app
           retention-days: 14
 
       - name: 10. Optional Apple Signing & Export
