@@ -42,16 +42,21 @@ jobs:
       - name: 6. Run Automated Tests
         run: flutter test
 
-      - name: 6.5. Configure Flutter iOS Build Settings
-        run: flutter build ios --config-only
-
       - name: 7. Build Unsigned iOS Release
         env:
           CODE_SIGNING_ALLOWED: "NO"
           CODE_SIGNING_REQUIRED: "NO"
           CODE_SIGN_IDENTITY: ""
         run: |
-          flutter build ios --release --no-codesign
+          flutter build ios --release --no-codesign 2>&1 | tee build_output.log
+
+      - name: Diagnostic Annotations On Failure
+        if: failure()
+        run: |
+          if [ -f build_output.log ]; then
+            ERROR_SNIPPET=$(tail -n 25 build_output.log | tr '\n' ' ')
+            echo "::error title=iOS Build Log::$ERROR_SNIPPET"
+          fi
 
       - name: 8. Package Unsigned IPA Artifact
         run: |
@@ -66,16 +71,6 @@ jobs:
           name: PhaseTwo-iOS-Unsigned-Release
           path: build/ios/PhaseTwo-iOS-Unsigned-Release.ipa
           retention-days: 14
-
-      - name: Upload Diagnostic Logs On Failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-build-diagnostic-logs
-          path: |
-            build/ios/**/*.log
-          if-no-files-found: ignore
-          retention-days: 7
 
       - name: 10. Optional Apple Signing & Export
         env:
