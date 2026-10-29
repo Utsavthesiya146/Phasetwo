@@ -50,7 +50,7 @@ jobs:
         run: |
           flutter build ios --release --no-codesign 2>&1 | tee build_output.log
 
-      - name: Diagnostic Annotations On Failure
+      - name: Diagnostic Annotations On Build Failure
         if: failure()
         run: |
           if [ -f build_output.log ]; then
@@ -60,10 +60,19 @@ jobs:
 
       - name: 8. Package Unsigned IPA Artifact
         run: |
+          RUNNER_PATH=$(find build/ios -name "Runner.app" -type d | head -n 1)
+          echo "Discovered compiled Runner.app at: ${RUNNER_PATH}"
+          if [ -z "$RUNNER_PATH" ]; then
+            echo "::error::Runner.app was not found in build/ios"
+            find build/ios -maxdepth 4
+            exit 1
+          fi
           mkdir -p build/ios/Payload
-          cp -r build/ios/iphoneos/Runner.app build/ios/Payload/
+          cp -r "$RUNNER_PATH" build/ios/Payload/
           cd build/ios
-          zip -r PhaseTwo-iOS-Unsigned-Release.ipa Payload
+          zip -qr PhaseTwo-iOS-Unsigned-Release.ipa Payload
+          cd ../..
+          ls -la build/ios/PhaseTwo-iOS-Unsigned-Release.ipa
 
       - name: 9. Upload Unsigned iOS Artifact
         uses: actions/upload-artifact@v4
