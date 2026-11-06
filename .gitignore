@@ -80,6 +80,7 @@ public_demo/
 *.apk
 *.aab
 *.ipa
+*.pem
 store_assets/GITHUB_SECRETS_PHASETWO.txt
 
 # Widget Preview related
