@@ -467,42 +467,63 @@ class _JobsScreenState extends State<JobsScreen> {
               ),
             ),
 
-            // Featured Role Cards Linking Directly to Live Website
+            // Popular Senior Role Opportunities (LinkedIn & Indeed Search Result Style)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   const Text(
-                    'Popular Senior Role Searches',
+                    'Canadian Senior & Executive Opportunities',
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 15.5,
                       fontWeight: FontWeight.w800,
                       color: AppConfig.primaryNavy,
                       letterSpacing: -0.3,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
+
+                  // Featured Live Opportunity: Business Development Associate (from Image 2)
+                  _buildLiveJobCard(
+                    title: 'Business Development Associate',
+                    company: 'Facility Management Group',
+                    location: 'Canada · Full Time Jobs',
+                    engagement: 'Full Time',
+                    seniority: 'Experienced',
+                    searchParam: 'JOBB0003',
+                    directUrl: 'https://www.phasetwo.ca/Jobs/job_details/JOBB0003',
+                    salary: r'$30,000 - $40,000 / Year',
+                  ),
+
                   _buildLiveJobCard(
                     title: 'Fractional Chief Operating Officer',
+                    company: 'Apex Supply & Operations',
                     location: 'Toronto, ON · Hybrid',
                     engagement: 'Fractional',
                     seniority: '15+ Years',
                     searchParam: 'Operations',
+                    salary: r'$140,000 - $185,000 / Year',
                   ),
+
                   _buildLiveJobCard(
                     title: 'Interim Senior Director of HR',
+                    company: 'Laurentian Advisory Partners',
                     location: 'Ottawa, ON · Hybrid',
                     engagement: 'Contract',
                     seniority: '12+ Years',
                     searchParam: 'HR',
+                    salary: r'$130,000 - $165,000 / Year',
                   ),
+
                   _buildLiveJobCard(
                     title: 'Strategic Financial Consultant',
+                    company: 'Calgary Executive Advisory',
                     location: 'Calgary, AB · On-site',
                     engagement: 'Flexible Gig',
                     seniority: 'Executive',
                     searchParam: 'Finance',
+                    salary: r'$95 - $140 / Hour',
                   ),
                 ],
               ),
@@ -515,80 +536,271 @@ class _JobsScreenState extends State<JobsScreen> {
 
   Widget _buildLiveJobCard({
     required String title,
+    required String company,
     required String location,
     required String engagement,
     required String seniority,
     required String searchParam,
+    required String salary,
+    String? directUrl,
   }) {
+    final String targetUrl = directUrl ?? '${AppConfig.jobsUrl}?search=$searchParam';
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppConfig.cardBorder.withOpacity(0.8)),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppConfig.cardBorder),
         boxShadow: AppConfig.modernCardShadow,
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => widget.onOpenUrl('${AppConfig.jobsUrl}?search=$searchParam'),
-          borderRadius: BorderRadius.circular(14),
+          onTap: () => widget.onOpenUrl(targetUrl),
+          borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Row(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: AppConfig.primaryLight,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    Icons.work_outline_rounded,
-                    color: AppConfig.primaryDark,
-                    size: 18,
+                // Header row: Company, Monogram, Bookmark
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: <Color>[AppConfig.primaryLight, Color(0xFFDCFCE7)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppConfig.cardBorder),
+                      ),
+                      child: Center(
+                        child: Text(
+                          company.isNotEmpty ? company.substring(0, 1) : 'P',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: AppConfig.primaryNavy,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Flexible(
+                                child: Text(
+                                  company,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppConfig.textSecondary,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(
+                                Icons.verified_rounded,
+                                size: 14,
+                                color: AppConfig.accentGreenDark,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Row(
+                            children: <Widget>[
+                              const Icon(
+                                Icons.location_on_outlined,
+                                size: 13,
+                                color: AppConfig.textMuted,
+                              ),
+                              const SizedBox(width: 3),
+                              Expanded(
+                                child: Text(
+                                  location,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: AppConfig.textMuted,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.bookmark_border_rounded,
+                        size: 20,
+                        color: AppConfig.textMuted,
+                      ),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Saved "$title" to your saved roles.'),
+                            backgroundColor: AppConfig.primaryNavy,
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+
+                // Job Title
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: AppConfig.primaryNavy,
+                    letterSpacing: -0.3,
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        title,
+
+                const SizedBox(height: 8),
+
+                // Salary pill
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppConfig.primaryLight,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    salary,
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w800,
+                      color: AppConfig.primaryDark,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // Badges row
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
+                      decoration: BoxDecoration(
+                        color: AppConfig.backgroundLight,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppConfig.cardBorder),
+                      ),
+                      child: Text(
+                        engagement,
                         style: const TextStyle(
-                          fontSize: 13.5,
+                          fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: AppConfig.primaryNavy,
                         ),
                       ),
-                      const SizedBox(height: 3),
-                      Text(
-                        location,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
+                      decoration: BoxDecoration(
+                        color: AppConfig.backgroundLight,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppConfig.cardBorder),
+                      ),
+                      child: Text(
+                        seniority,
                         style: const TextStyle(
-                          fontSize: 11.5,
-                          color: AppConfig.textMuted,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: AppConfig.textSecondary,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: AppConfig.backgroundLight,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppConfig.cardBorder),
-                  ),
-                  child: Text(
-                    engagement,
-                    style: const TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w700,
-                      color: AppConfig.textSecondary,
                     ),
-                  ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFDCFCE7),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Text(
+                        '🍁 Canada',
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF15803D),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 14),
+
+                // LinkedIn & Indeed Action Row
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => widget.onOpenUrl(targetUrl),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppConfig.primaryColor,
+                          foregroundColor: AppConfig.primaryNavy,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 9),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        icon: const Icon(Icons.bolt_rounded, size: 17),
+                        label: const Text(
+                          'Quick Apply',
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    OutlinedButton(
+                      onPressed: () => widget.onOpenUrl(targetUrl),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppConfig.primaryDark,
+                        side: const BorderSide(color: AppConfig.cardBorder),
+                        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        'View Role',
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

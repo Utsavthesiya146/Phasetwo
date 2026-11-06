@@ -246,50 +246,109 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  /// Quick Search Bar with Ambient Shadow
+  /// Quick Search Bar with Ambient Shadow and Filter Chips (LinkedIn & Indeed Style)
   Widget _buildQuickSearchBar(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onNavigateToTab(1),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppConfig.cardBorder.withOpacity(0.8)),
-          boxShadow: AppConfig.modernCardShadow,
-        ),
-        child: Row(
-          children: <Widget>[
-            const Icon(Icons.search_rounded, color: AppConfig.primaryColor, size: 22),
-            const SizedBox(width: 12),
-            const Expanded(
-              child: Text(
-                'Search role, skill, or Canadian city...',
-                style: TextStyle(
-                  fontSize: 13.5,
-                  color: AppConfig.textMuted,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
+    final List<String> popularSearches = <String>[
+      '🍁 Remote Canada',
+      'Fractional COO',
+      'Interim VP',
+      'Executive Advisory',
+      'Toronto, ON',
+      'Vancouver, BC',
+      'Montreal, QC',
+      'Operations',
+      'Finance',
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        GestureDetector(
+          onTap: () => onNavigateToTab(1),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppConfig.cardBorder.withOpacity(0.8)),
+              boxShadow: AppConfig.modernCardShadow,
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppConfig.primaryLight,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Text(
-                'FIND',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: AppConfig.primaryDark,
+            child: Row(
+              children: <Widget>[
+                const Icon(Icons.search_rounded, color: AppConfig.primaryColor, size: 22),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'Search role, skill, or Canadian city...',
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      color: AppConfig.textMuted,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
                 ),
-              ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppConfig.primaryLight,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'FIND',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: AppConfig.primaryDark,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 32,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: popularSearches.length,
+            separatorBuilder: (BuildContext context, int index) => const SizedBox(width: 8),
+            itemBuilder: (BuildContext context, int index) {
+              final String tag = popularSearches[index];
+              return InkWell(
+                onTap: () {
+                  final String query = tag.replaceFirst('🍁 ', '').trim();
+                  onOpenUrl('${AppConfig.jobsUrl}?search=$query');
+                },
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppConfig.cardBorder),
+                    boxShadow: <BoxShadow>[
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.02),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    tag,
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w600,
+                      color: AppConfig.textSecondary,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -554,7 +613,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  /// Featured Canadian Senior Opportunities (Option B High-Density Cards)
+  /// Featured Canadian Senior Opportunities (LinkedIn & Indeed High-Density Cards)
   Widget _buildFeaturedOpportunities(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -566,7 +625,7 @@ class HomeScreen extends StatelessWidget {
           runSpacing: 4,
           children: <Widget>[
             const Text(
-              'Featured Opportunities',
+              'Featured Senior Opportunities',
               style: TextStyle(
                 fontSize: 16.5,
                 fontWeight: FontWeight.w800,
@@ -591,52 +650,77 @@ class HomeScreen extends StatelessWidget {
 
         // Role Track 1: Executive Operations & Supply Chain
         _buildOpportunityCard(
-          title: 'Fractional VP & COO Roles',
-          company: 'Operations & Supply Leadership',
-          location: 'Toronto, ON & Nationwide · Hybrid',
+          context: context,
+          title: 'Fractional Chief Operating Officer (COO)',
+          company: 'Apex Logistics Canada',
+          location: 'Toronto, ON · Hybrid',
           workType: 'Fractional',
           seniority: '15+ Years Exp',
           searchQuery: 'Operations',
+          salary: r'$140,000 - $185,000 / Year',
+          postedTime: 'Just now · 🍁 Canadian Network',
         ),
 
         // Role Track 2: Corporate Governance & Advisory
         _buildOpportunityCard(
-          title: 'Interim Corporate Governance & Board Advisory',
-          company: 'Governance, Legal & Compliance',
-          location: 'Montreal, QC & Nationwide · Hybrid',
+          context: context,
+          title: 'Interim Corporate Governance & Board Advisor',
+          company: 'Laurentian Advisory Group',
+          location: 'Montreal, QC · Hybrid',
           workType: 'Contract',
           seniority: 'Executive (20+)',
           searchQuery: 'Governance',
+          salary: r'$150,000 - $210,000 / Year',
+          postedTime: 'Active · Verified Employer',
         ),
 
         // Role Track 3: Technology Architecture & AI Strategy
         _buildOpportunityCard(
-          title: 'Senior Enterprise & AI Technology Advisory',
-          company: 'Digital Architecture & Technology',
+          context: context,
+          title: 'Senior Enterprise & AI Technology Advisor',
+          company: 'Pacific Coast Architecture',
           location: 'Vancouver, BC & Remote Canada',
           workType: 'Consulting',
           seniority: '10+ Years Exp',
           searchQuery: 'Technology',
+          salary: r'$95 - $145 / Hour',
+          postedTime: 'Trending · Fast Match',
+        ),
+
+        // Role Track 4: HR & People Strategy
+        _buildOpportunityCard(
+          context: context,
+          title: 'Director of People & Culture (Fractional)',
+          company: 'Calgary Strategic HR Partners',
+          location: 'Calgary, AB · Remote Canada',
+          workType: 'Fractional',
+          seniority: '12+ Years Exp',
+          searchQuery: 'HR',
+          salary: r'$120,000 - $160,000 / Year',
+          postedTime: 'New Opening',
         ),
       ],
     );
   }
 
-  /// Option B High-Density Job Card with Soft Ambient Shadow
+  /// LinkedIn & Indeed Style Executive Job Card
   Widget _buildOpportunityCard({
+    required BuildContext context,
     required String title,
     required String company,
     required String location,
     required String workType,
     required String seniority,
     required String searchQuery,
+    required String salary,
+    required String postedTime,
   }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppConfig.cardBorder.withOpacity(0.8)),
+        border: Border.all(color: AppConfig.cardBorder),
         boxShadow: AppConfig.modernCardShadow,
       ),
       child: Material(
@@ -649,22 +733,27 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                // Top Row: Monogram, Company, Location, Save Button
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Container(
-                      width: 40,
-                      height: 40,
+                      width: 44,
+                      height: 44,
                       decoration: BoxDecoration(
-                        color: AppConfig.backgroundLight,
-                        borderRadius: BorderRadius.circular(10),
+                        gradient: const LinearGradient(
+                          colors: <Color>[AppConfig.primaryLight, Color(0xFFDCFCE7)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: AppConfig.cardBorder),
                       ),
                       child: Center(
                         child: Text(
                           company.isNotEmpty ? company.substring(0, 1) : 'P',
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 19,
                             fontWeight: FontWeight.w800,
                             color: AppConfig.primaryNavy,
                           ),
@@ -676,68 +765,136 @@ class HomeScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(
-                            company,
-                            style: const TextStyle(
-                              fontSize: 12.5,
-                              color: AppConfig.textMuted,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          Row(
+                            children: <Widget>[
+                              Flexible(
+                                child: Text(
+                                  company,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: AppConfig.textSecondary,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(
+                                Icons.verified_rounded,
+                                size: 14,
+                                color: AppConfig.accentGreenDark,
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 2),
-                          Text(
-                            location,
-                            style: const TextStyle(
-                              fontSize: 11.5,
-                              color: AppConfig.textSecondary,
-                            ),
+                          Row(
+                            children: <Widget>[
+                              const Icon(
+                                Icons.location_on_outlined,
+                                size: 13,
+                                color: AppConfig.textMuted,
+                              ),
+                              const SizedBox(width: 3),
+                              Expanded(
+                                child: Text(
+                                  location,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: AppConfig.textMuted,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
-                    const Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      size: 14,
-                      color: AppConfig.textMuted,
+                    IconButton(
+                      icon: const Icon(
+                        Icons.bookmark_border_rounded,
+                        size: 21,
+                        color: AppConfig.textMuted,
+                      ),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Saved "$title" to your saved roles.'),
+                            backgroundColor: AppConfig.primaryNavy,
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+
+                const SizedBox(height: 12),
+
+                // Job Title
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: 15.5,
                     fontWeight: FontWeight.w800,
                     color: AppConfig.primaryNavy,
                     letterSpacing: -0.3,
                   ),
                 ),
+
+                const SizedBox(height: 8),
+
+                // Salary Range Pill (Indeed style prominent display)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppConfig.primaryLight,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    salary,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: AppConfig.primaryDark,
+                    ),
+                  ),
+                ),
+
                 const SizedBox(height: 10),
+
+                // Badges Row
                 Wrap(
                   spacing: 6,
                   runSpacing: 6,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: <Widget>[
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
                       decoration: BoxDecoration(
-                        color: AppConfig.primaryLight,
-                        borderRadius: BorderRadius.circular(20),
+                        color: AppConfig.backgroundLight,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppConfig.cardBorder),
                       ),
                       child: Text(
                         workType,
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: AppConfig.primaryDark,
+                          color: AppConfig.primaryNavy,
                         ),
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
                       decoration: BoxDecoration(
                         color: AppConfig.backgroundLight,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: AppConfig.cardBorder),
                       ),
                       child: Text(
@@ -749,20 +906,70 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Text(
-                          'Search Live',
-                          style: TextStyle(
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w700,
-                            color: AppConfig.primaryDark,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFDCFCE7),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Text(
+                        '🍁 Canada Only',
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF15803D),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 14),
+
+                // LinkedIn & Indeed Style Bottom Action Row
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => onOpenUrl('${AppConfig.jobsUrl}?search=$searchQuery'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppConfig.primaryColor,
+                          foregroundColor: AppConfig.primaryNavy,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        SizedBox(width: 3),
-                        Icon(Icons.arrow_forward_rounded, size: 12, color: AppConfig.primaryDark),
-                      ],
+                        icon: const Icon(Icons.bolt_rounded, size: 18),
+                        label: const Text(
+                          'Quick Apply',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    OutlinedButton(
+                      onPressed: () => onOpenUrl('${AppConfig.jobsUrl}?search=$searchQuery'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppConfig.primaryDark,
+                        side: const BorderSide(color: AppConfig.cardBorder),
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        'Details',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ],
                 ),

@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../config/app_config.dart';
 import 'auth/candidate_login_screen.dart';
 import 'auth/candidate_signup_screen.dart';
 import 'auth/employer_login_screen.dart';
 import 'auth/employer_signup_screen.dart';
 
-/// PhaseTwo Native Authentication Welcome Screen.
-/// Displayed on app startup for unauthenticated users.
-/// Features PhaseTwo branding, approved Option B blue gradient, welcome headline,
-/// and direct access to native candidate and employer authentication screens.
+/// PhaseTwo Native Authentication Welcome Screen (LinkedIn, Indeed & Job Hai Theme).
+/// Displays on startup for unauthenticated users, providing modern mobile-first
+/// Canadian Senior Executive network branding, quick access to Candidate & Employer portals,
+/// and instant guest exploration.
 class AuthWelcomeScreen extends StatelessWidget {
   const AuthWelcomeScreen({
     super.key,
@@ -40,9 +41,9 @@ class AuthWelcomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            // Hero Banner with Option B Modern Dynamic Blue Gradient
+            // 1. Hero Banner with Modern Dynamic Blue Gradient (LinkedIn / Indeed Executive Theme)
             Container(
-              padding: const EdgeInsets.fromLTRB(24, 60, 24, 32),
+              padding: const EdgeInsets.fromLTRB(20, 52, 20, 26),
               decoration: const BoxDecoration(
                 gradient: AppConfig.heroNavyGradient,
                 borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
@@ -57,12 +58,12 @@ class AuthWelcomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  // Logo container
+                  // Top Row: Logo + Instant Explore Shortcut
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
@@ -76,7 +77,7 @@ class AuthWelcomeScreen extends StatelessWidget {
                         ),
                         child: Image.asset(
                           'assets/images/logo.png',
-                          height: 28,
+                          height: 26,
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) => const Text(
                             AppConfig.appName,
@@ -88,32 +89,50 @@ class AuthWelcomeScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.18),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.25),
-                            width: 0.8,
+                      InkWell(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          onExploreAsGuest();
+                        },
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.18),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.35),
+                              width: 0.8,
+                            ),
                           ),
-                        ),
-                        child: const Text(
-                          '🍁 Canada Wide',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Text(
+                                'Explore Jobs',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              SizedBox(width: 4),
+                              Icon(
+                                Icons.arrow_forward_rounded,
+                                size: 14,
+                                color: Colors.white,
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 18),
 
-                  // Canadian Network Frosted Glass Pill
+                  // Canadian Network Frosted Glass Tag
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4.5),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.18),
                       borderRadius: BorderRadius.circular(20),
@@ -129,26 +148,26 @@ class AuthWelcomeScreen extends StatelessWidget {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 11.5,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
                           letterSpacing: -0.1,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 12),
 
                   // Professional Welcome Headline
                   Text(
                     'Experience Is Your Greatest Asset',
                     style: TextStyle(
                       fontSize: 22 * textScale,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w900,
                       color: Colors.white,
-                      height: 1.2,
+                      height: 1.18,
                       letterSpacing: -0.6,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   Text(
                     'Connecting experienced leaders, fractional executives, and mature professionals with premier Canadian employers.',
                     style: TextStyle(
@@ -157,28 +176,41 @@ class AuthWelcomeScreen extends StatelessWidget {
                       height: 1.45,
                     ),
                   ),
+                  const SizedBox(height: 14),
+
+                  // Canadian Trust Badges Row
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: <Widget>[
+                      _buildHeaderTrustChip('🍁 100% Canadian'),
+                      _buildHeaderTrustChip('⚡ Fractional & Advisory'),
+                      _buildHeaderTrustChip('🔒 Verified Network'),
+                    ],
+                  ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
-            // Authentication Cards Section
+            // 2. Authentication Cards Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 children: <Widget>[
-                  // 1. Candidate Portal Card
+                  // Candidate Portal Card (Vibrant Ocean Blue Button Theme)
                   _buildAuthCard(
                     context: context,
                     icon: Icons.person_rounded,
                     iconBg: AppConfig.primaryLight,
-                    iconColor: AppConfig.primaryNavy,
+                    iconColor: AppConfig.primaryDark,
                     sectionTitle: 'Candidate Portal',
                     subtitle: 'For experienced professionals seeking executive, fractional, and flexible roles.',
                     loginLabel: 'Candidate Login',
                     signupLabel: 'Candidate Sign Up',
                     onLogin: () {
+                      HapticFeedback.lightImpact();
                       onOpenAuthUrl?.call(AppConfig.candidateLoginUrl);
                       if (onCandidateLogin != null) {
                         onCandidateLogin!();
@@ -194,6 +226,7 @@ class AuthWelcomeScreen extends StatelessWidget {
                       }
                     },
                     onSignup: () {
+                      HapticFeedback.lightImpact();
                       onOpenAuthUrl?.call(AppConfig.candidateRegisterUrl);
                       if (onCandidateSignup != null) {
                         onCandidateSignup!();
@@ -208,12 +241,14 @@ class AuthWelcomeScreen extends StatelessWidget {
                         );
                       }
                     },
-                    primaryColor: AppConfig.primaryNavy,
+                    primaryColor: AppConfig.primaryColor,
+                    primaryTextColor: AppConfig.primaryNavy,
+                    hasGlow: true,
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
 
-                  // 2. Employer Portal Card
+                  // Employer & Recruiter Portal Card (Executive Navy Theme)
                   _buildAuthCard(
                     context: context,
                     icon: Icons.business_center_rounded,
@@ -224,6 +259,7 @@ class AuthWelcomeScreen extends StatelessWidget {
                     loginLabel: 'Employer Login',
                     signupLabel: 'Employer Registration',
                     onLogin: () {
+                      HapticFeedback.lightImpact();
                       onOpenAuthUrl?.call(AppConfig.employerLoginUrl);
                       if (onEmployerLogin != null) {
                         onEmployerLogin!();
@@ -239,6 +275,7 @@ class AuthWelcomeScreen extends StatelessWidget {
                       }
                     },
                     onSignup: () {
+                      HapticFeedback.lightImpact();
                       onOpenAuthUrl?.call(AppConfig.registerEmployerUrl);
                       if (onEmployerSignup != null) {
                         onEmployerSignup!();
@@ -254,34 +291,104 @@ class AuthWelcomeScreen extends StatelessWidget {
                       }
                     },
                     primaryColor: AppConfig.primaryNavy,
+                    primaryTextColor: Colors.white,
+                    hasGlow: false,
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // 3. Guest Exploration Card (Indeed & Job Hai Style)
+                  InkWell(
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      onExploreAsGuest();
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppConfig.cardBorder),
+                        boxShadow: AppConfig.modernCardShadow,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          const Icon(Icons.search_rounded, size: 18, color: AppConfig.primaryDark),
+                          const SizedBox(width: 8),
+                          const Flexible(
+                            child: Text(
+                              'Explore Platform as Guest',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: AppConfig.primaryNavy,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.arrow_forward_rounded, size: 15, color: AppConfig.primaryDark),
+                        ],
+                      ),
+                    ),
                   ),
 
                   const SizedBox(height: 20),
 
-                  // Guest Exploration Link
-                  Center(
-                    child: TextButton.icon(
-                      onPressed: onExploreAsGuest,
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppConfig.textMuted,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      ),
-                      icon: const Text(
-                        'Explore Platform as Guest',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppConfig.primaryNavy,
+                  // 4. Trust Footer
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        const Icon(Icons.shield_outlined, size: 14, color: AppConfig.textMuted),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            '100% Verified Canadian Opportunities · PhaseTwo.ca',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: AppConfig.textMuted.withOpacity(0.9),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
-                      ),
-                      label: const Icon(Icons.arrow_forward_rounded, size: 16, color: AppConfig.primaryNavy),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+
+                  const SizedBox(height: 28),
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeaderTrustChip(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.22),
+          width: 0.8,
+        ),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -299,13 +406,15 @@ class AuthWelcomeScreen extends StatelessWidget {
     required VoidCallback onLogin,
     required VoidCallback onSignup,
     required Color primaryColor,
+    required Color primaryTextColor,
+    required bool hasGlow,
   }) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppConfig.cardBorder.withOpacity(0.8)),
+        border: Border.all(color: AppConfig.cardBorder),
         boxShadow: AppConfig.modernCardShadow,
       ),
       child: Column(
@@ -314,58 +423,82 @@ class AuthWelcomeScreen extends StatelessWidget {
           Row(
             children: <Widget>[
               Container(
-                width: 38,
-                height: 38,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: iconBg,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: iconColor, size: 20),
+                child: Icon(icon, color: iconColor, size: 22),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  sectionTitle,
-                  style: const TextStyle(
-                    fontSize: 15.5,
-                    fontWeight: FontWeight.w800,
-                    color: AppConfig.primaryNavy,
-                    letterSpacing: -0.3,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      sectionTitle,
+                      style: const TextStyle(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w800,
+                        color: AppConfig.primaryNavy,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        color: AppConfig.textMuted,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            subtitle,
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppConfig.textMuted,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
-              final Widget loginBtn = ElevatedButton(
-                onPressed: onLogin,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+              final Widget loginBtn = Container(
+                decoration: hasGlow
+                    ? BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: AppConfig.buttonShadow,
+                      )
+                    : BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: <BoxShadow>[
+                          BoxShadow(
+                            color: AppConfig.primaryNavy.withOpacity(0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                child: ElevatedButton(
+                  onPressed: onLogin,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    foregroundColor: primaryTextColor,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                ),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    loginLabel,
-                    style: const TextStyle(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w800,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      loginLabel,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
                 ),
@@ -374,11 +507,11 @@ class AuthWelcomeScreen extends StatelessWidget {
               final Widget signupBtn = OutlinedButton(
                 onPressed: onSignup,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: primaryColor,
-                  side: const BorderSide(color: AppConfig.cardBorder, width: 1.2),
+                  foregroundColor: AppConfig.primaryNavy,
+                  side: const BorderSide(color: AppConfig.cardBorder, width: 1.4),
                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 child: FittedBox(
@@ -386,14 +519,13 @@ class AuthWelcomeScreen extends StatelessWidget {
                   child: Text(
                     signupLabel,
                     style: const TextStyle(
-                      fontSize: 12.5,
+                      fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
               );
 
-              // Responsive breakpoint: stack on ultra-narrow screens (< 320px inner width)
               if (constraints.maxWidth < 270) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,

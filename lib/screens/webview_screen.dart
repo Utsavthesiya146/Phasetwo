@@ -9,6 +9,7 @@ import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import '../config/app_config.dart';
 import '../services/network_service.dart';
 import '../services/url_handler_service.dart';
+import '../services/webview_styling_service.dart';
 import '../widgets/progress_bar.dart';
 import 'auth/candidate_login_screen.dart';
 import 'auth/candidate_signup_screen.dart';
@@ -116,6 +117,18 @@ class PhaseTwoWebViewScreenState extends State<PhaseTwoWebViewScreen> {
     }
   }
 
+  /// Injects custom LinkedIn & Indeed-grade mobile styles into PhaseTwo web pages
+  Future<void> _injectMobileStyles(WebViewController controller, String url) async {
+    try {
+      final Uri? uri = Uri.tryParse(url);
+      if (uri != null && UrlHandlerService.isInternalUrl(uri)) {
+        await controller.runJavaScript(WebViewStylingService.getInjectionScript());
+      }
+    } catch (e) {
+      debugPrint('[WebView] Style injection error: $e');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -161,6 +174,11 @@ class PhaseTwoWebViewScreenState extends State<PhaseTwoWebViewScreen> {
             });
             widget.onProgressChanged?.call(prog);
             widget.onLoadingChanged?.call(loading);
+
+            // Early injection during render to avoid layout flashing
+            if (progress > 30) {
+              _injectMobileStyles(controller, _currentUrl);
+            }
           },
           onPageStarted: (String url) {
             debugPrint('[WebView] Page started loading: $url');
@@ -174,6 +192,7 @@ class PhaseTwoWebViewScreenState extends State<PhaseTwoWebViewScreen> {
             widget.onUrlChanged?.call(url);
             widget.onLoadingChanged?.call(true);
             _updateNavigationButtons();
+            _injectMobileStyles(controller, url);
           },
           onPageFinished: (String url) async {
             debugPrint('[WebView] Page finished loading: $url');
@@ -184,6 +203,9 @@ class PhaseTwoWebViewScreenState extends State<PhaseTwoWebViewScreen> {
             });
             widget.onLoadingChanged?.call(false);
             _updateNavigationButtons();
+
+            // Inject mobile styles and attach DOM MutationObserver
+            await _injectMobileStyles(controller, url);
 
             // Run JS DOM check for authentic session indicators
             try {

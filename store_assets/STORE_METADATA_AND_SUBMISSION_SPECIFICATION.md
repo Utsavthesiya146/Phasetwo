@@ -4,7 +4,7 @@
 **Android Application ID / Package Name:** `ca.phasetwo.phasetwo`  
 **iOS Bundle Identifier:** `ca.phasetwo.phasetwo`  
 **Target Platform:** Android & iOS  
-**Release Version:** `1.0.0` (Build `1`)  
+**Release Version:** `1.0.0` (Build `2`) — Google Play Compliant (No `READ_MEDIA_IMAGES` dependency)  
 **Backend / Production Domain:** `https://www.phasetwo.ca/`  
 **Design System:** Approved Option B — PhaseTwo Modern Dynamic  
 
@@ -24,6 +24,8 @@ All store assets have been prepared and organized in `store_assets/`:
 | `store_assets/screenshots/03_candidate_portal.png` | Google Play & App Store | 1080 x 1920 px | PNG | Native Candidate Sign In, Registration & 10+ Yrs talent portal |
 | `store_assets/screenshots/04_employer_console.png` | Google Play & App Store | 1080 x 1920 px | PNG | Native Employer Hub, Job & Gig posting, verified executive talent |
 | `store_assets/screenshots/05_privacy_account_deletion.png` | Google Play & App Store | 1080 x 1920 px | PNG | In-app Account & Data Deletion & Privacy Policy dialog compliance |
+| `store_assets/screenshots/tablet_7inch/*.png` | Google Play Console (7-inch) | 1080 x 1920 px (9:16) | PNG | 5 compliant screenshots (sides between 320 px and 3,840 px) |
+| `store_assets/screenshots/tablet_10inch/*.png` | Google Play Console (10-inch) | 1440 x 2560 px (9:16) | PNG | 5 high-res screenshots (sides between 1,080 px and 7,680 px) |
 
 ---
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../config/app_config.dart';
 
 /// Premium Bottom Navigation Bar for PhaseTwo.
@@ -98,7 +99,10 @@ class CustomBottomNavBar extends StatelessWidget {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: () => onTap(index),
+            onTap: () {
+              HapticFeedback.selectionClick();
+              onTap(index);
+            },
             borderRadius: BorderRadius.circular(12),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

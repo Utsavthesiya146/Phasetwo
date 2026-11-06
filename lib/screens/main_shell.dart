@@ -163,6 +163,24 @@ class _MainShellScreenState extends State<MainShellScreen> {
     try {
       final Uri uri = Uri.parse(_currentUrl);
       final String host = uri.host.replaceFirst('www.', '');
+      final String pathLower = uri.path.toLowerCase();
+
+      if (pathLower.contains('job_details') || pathLower.contains('jobb')) {
+        return 'PhaseTwo · Job Details';
+      }
+      if (pathLower.contains('jobs') || pathLower.contains('browse_jobs')) {
+        return 'PhaseTwo · Canadian Jobs';
+      }
+      if (pathLower.contains('gigs')) {
+        return 'PhaseTwo · Flexible Gigs';
+      }
+      if (pathLower.contains('candidate') || pathLower.contains('applied')) {
+        return 'PhaseTwo · Candidate Portal';
+      }
+      if (pathLower.contains('company') || pathLower.contains('recruiter')) {
+        return 'PhaseTwo · Employer Portal';
+      }
+
       if (uri.path.isNotEmpty && uri.path != '/') {
         final String pathSegment =
             uri.pathSegments.isNotEmpty ? uri.pathSegments.last : '';
@@ -444,19 +462,18 @@ class _MainShellScreenState extends State<MainShellScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     if (_isWebViewActive) {
-      // Clean In-App Web Presentation Bar (TASK 5 FIX: Eliminates Duplicate Header)
-      // The website already includes its own full header. We avoid stacking the thick
-      // native branding header above it, using a sleek 44px in-app navigation bar instead.
+      // Clean In-App Web Presentation Bar (iOS/Android Safari & Chrome Style)
+      // Eliminates duplicate web headers, provides clear navigation & security pill.
       return PreferredSize(
-        preferredSize: const Size.fromHeight(48.0),
+        preferredSize: const Size.fromHeight(50.0),
         child: SafeArea(
           bottom: false,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Container(
-                height: 44,
-                padding: const EdgeInsets.symmetric(horizontal: 4),
+                height: 48,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   border: Border(
@@ -465,12 +482,13 @@ class _MainShellScreenState extends State<MainShellScreen> {
                 ),
                 child: Row(
                   children: <Widget>[
+                    // Back navigation button
                     IconButton(
                       icon: Icon(
                         _canGoBack
                             ? Icons.arrow_back_ios_new_rounded
                             : Icons.arrow_back_rounded,
-                        size: 18,
+                        size: 19,
                         color: AppConfig.primaryNavy,
                       ),
                       onPressed: () async {
@@ -482,30 +500,57 @@ class _MainShellScreenState extends State<MainShellScreen> {
                       },
                       tooltip: _canGoBack ? 'Previous Page' : 'Return to App',
                     ),
+
+                    // Centered Security & Domain Pill
                     Expanded(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          const Icon(Icons.lock_rounded, size: 13, color: AppConfig.accentGreenDark),
-                          const SizedBox(width: 5),
-                          Flexible(
-                            child: Text(
-                              _getFormattedDomain(),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w600,
-                                color: AppConfig.textDark,
+                      child: Container(
+                        height: 32,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        decoration: BoxDecoration(
+                          color: AppConfig.backgroundLight,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppConfig.cardBorder),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            const Icon(
+                              Icons.lock_rounded,
+                              size: 12,
+                              color: AppConfig.accentGreenDark,
+                            ),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                _getFormattedDomain(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppConfig.primaryNavy,
+                                  letterSpacing: -0.2,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
+
+                    const SizedBox(width: 4),
+
+                    // Reload page button
                     IconButton(
-                      icon: const Icon(Icons.close_rounded, size: 20, color: AppConfig.textMuted),
+                      icon: const Icon(Icons.refresh_rounded, size: 19, color: AppConfig.textMuted),
+                      onPressed: () => _webViewKey.currentState?.reload(),
+                      tooltip: 'Reload',
+                    ),
+
+                    // Close / Return button
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, size: 20, color: AppConfig.textDark),
                       onPressed: _closeWebView,
                       tooltip: 'Return to App',
                     ),

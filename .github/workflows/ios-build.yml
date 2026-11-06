@@ -1,4 +1,4 @@
-name: PhaseTwo iOS Build & Verification
+name: PhaseTwo iOS Build & App Store Release
 
 on:
   push:
@@ -6,6 +6,12 @@ on:
       - main
       - master
   workflow_dispatch:
+    inputs:
+      upload_to_app_store:
+        description: 'Upload signed IPA to App Store Connect / TestFlight'
+        required: true
+        type: boolean
+        default: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -56,7 +62,42 @@ jobs:
           pod install --repo-update
           cd ..
 
-      - name: 7. Build Unsigned iOS Release
+      - name: 7. Apple Distribution Signing & Production IPA Export
+        env:
+          APPLE_CERT_B64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          APPLE_CERT_PASS: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_PROV_B64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          if [ -n "$APPLE_CERT_B64" ] && [ -n "$APPLE_PROV_B64" ]; then
+            echo "Apple Developer signing credentials detected! Setting up production signing..."
+            CERT_PATH=$RUNNER_TEMP/build_cert.p12
+            PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
+            KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+            echo -n "$APPLE_CERT_B64" | base64 --decode -o $CERT_PATH
+            echo -n "$APPLE_PROV_B64" | base64 --decode -o $PP_PATH
+
+            security create-keychain -p "phasetwo_temp" $KEYCHAIN_PATH
+            security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+            security unlock-keychain -p "phasetwo_temp" $KEYCHAIN_PATH
+
+            security import $CERT_PATH -P "$APPLE_CERT_PASS" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+            security list-keychain -d user -s $KEYCHAIN_PATH
+            security set-key-partition-list -S apple-tool:,apple: -s -k "phasetwo_temp" $KEYCHAIN_PATH
+
+            mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+            cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/
+
+            echo "Building signed iOS archive and exporting IPA..."
+            flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
+            echo "SIGNED_BUILD=true" >> $GITHUB_ENV
+          else
+            echo "No Apple signing credentials provided. Falling back to unsigned build packaging..."
+            echo "SIGNED_BUILD=false" >> $GITHUB_ENV
+          fi
+
+      - name: 8. Fallback Unsigned Build Packaging (If No Signing Credentials)
+        if: env.SIGNED_BUILD == 'false'
         env:
           CODE_SIGNING_ALLOWED: "NO"
           CODE_SIGNING_REQUIRED: "NO"
@@ -65,23 +106,9 @@ jobs:
           set -o pipefail
           flutter build ios --release --no-codesign 2>&1 | tee build_output.log
 
-      - name: Diagnostic Annotations On Build Failure
-        if: failure()
-        run: |
-          if [ -f build_output.log ]; then
-            ERROR_SNIPPET=$(tail -n 25 build_output.log | tr '\n' ' ')
-            echo "::error title=iOS Build Log::$ERROR_SNIPPET"
-          fi
-
-      - name: 8. Package Unsigned IPA Artifact
-        run: |
-          echo "=== Searching for compiled Runner.app ==="
           APP_PATH=$(find build -name "Runner.app" -type d | head -n 1)
-          echo "Discovered compiled Runner.app at: ${APP_PATH}"
-
           if [ -z "$APP_PATH" ]; then
             echo "::error title=Runner App Not Found::No Runner.app found in build directory"
-            find build -maxdepth 4
             exit 1
           fi
 
@@ -89,89 +116,55 @@ jobs:
           cp -R "$APP_PATH" build/ios/Payload/
           cd build/ios
           zip -qr -y PhaseTwo-iOS-Unsigned-Release.ipa Payload
-          IPA_SIZE=$(ls -lh PhaseTwo-iOS-Unsigned-Release.ipa | awk '{print $5}')
-          echo "::notice title=Unsigned IPA Artifact::PhaseTwo-iOS-Unsigned-Release.ipa created successfully with size ${IPA_SIZE} at $(pwd)/PhaseTwo-iOS-Unsigned-Release.ipa"
           cd ../..
 
-      - name: 9. Upload Unsigned iOS IPA Artifact
+      - name: 9. Upload Unsigned IPA Artifact
+        if: env.SIGNED_BUILD == 'false'
         uses: actions/upload-artifact@v4
         with:
           name: PhaseTwo-iOS-Unsigned-Release-IPA
           path: build/ios/PhaseTwo-iOS-Unsigned-Release.ipa
           retention-days: 14
 
-      - name: 9b. Upload Compiled Runner.app Bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: PhaseTwo-iOS-Runner-App
-          path: "build/**/Runner.app"
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: 10. Optional Apple Signing & Export
-        env:
-          APPLE_CERT_B64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
-          APPLE_CERT_PASS: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_PROV_B64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
-        run: |
-          if [ -z "$APPLE_CERT_B64" ]; then
-            echo "NOTICE: No Apple Developer signing credentials supplied in repository secrets."
-            echo "Unsigned iOS release bundle packaged successfully as PhaseTwo-iOS-Unsigned-Release.ipa."
-            exit 0
-          fi
-          echo "Setting up temporary Apple keychain..."
-          CERT_PATH=$RUNNER_TEMP/build_cert.p12
-          PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
-          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-
-          echo -n "$APPLE_CERT_B64" | base64 --decode -o $CERT_PATH
-          echo -n "$APPLE_PROV_B64" | base64 --decode -o $PP_PATH
-
-          security create-keychain -p "phasetwo_temp" $KEYCHAIN_PATH
-          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-          security unlock-keychain -p "phasetwo_temp" $KEYCHAIN_PATH
-
-          security import $CERT_PATH -P "$APPLE_CERT_PASS" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security list-keychain -d user -s $KEYCHAIN_PATH
-          security set-key-partition-list -S apple-tool:,apple: -s -k "phasetwo_temp" $KEYCHAIN_PATH
-
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/
-
-          flutter build ipa --release
-
-      - name: 11. Upload Signed IPA (If Generated)
+      - name: 10. Upload Signed Production IPA Artifact
+        if: env.SIGNED_BUILD == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: PhaseTwo-iOS-Signed-Production-IPA
           path: build/ios/ipa/*.ipa
-          if-no-files-found: ignore
           retention-days: 30
 
-      - name: 12. Optional TestFlight / App Store Connect Delivery
+      - name: 11. TestFlight & App Store Connect Automated Delivery
+        if: env.SIGNED_BUILD == 'true' && (github.event_name != 'workflow_dispatch' || github.event.inputs.upload_to_app_store == 'true')
         env:
           APP_STORE_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           APP_STORE_KEY_B64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
         run: |
           if [ -z "$APP_STORE_KEY_ID" ] || [ -z "$APP_STORE_ISSUER_ID" ] || [ -z "$APP_STORE_KEY_B64" ]; then
-            echo "NOTICE: App Store Connect API Key secrets are not configured."
-            echo "Skipping automated upload to TestFlight / App Store Connect."
-            echo "To enable automated TestFlight distribution, add the following GitHub Secrets:"
+            echo "::warning title=Missing App Store Credentials::App Store Connect API key secrets are missing. Skipping automated upload."
+            echo "Configure the following GitHub Secrets to enable automatic TestFlight/App Store upload:"
             echo " - APP_STORE_CONNECT_API_KEY_KEY_ID"
             echo " - APP_STORE_CONNECT_API_KEY_ISSUER_ID"
             echo " - APP_STORE_CONNECT_API_KEY_BASE64"
             exit 0
           fi
+
           SIGNED_IPA=$(find build/ios/ipa -name "*.ipa" | head -n 1)
           if [ -z "$SIGNED_IPA" ]; then
-            echo "NOTICE: No signed IPA found in build/ios/ipa to upload to TestFlight."
-            exit 0
+            echo "::error title=No Signed IPA::No signed IPA file found in build/ios/ipa."
+            exit 1
           fi
-          echo "Setting up App Store Connect API Key..."
-          mkdir -p ~/.appstoreconnect/private_keys
-          echo -n "$APP_STORE_KEY_B64" | base64 --decode -o ~/.appstoreconnect/private_keys/AuthKey_${APP_STORE_KEY_ID}.p8
-          echo "Uploading $SIGNED_IPA to App Store Connect / TestFlight..."
-          xcrun altool --upload-app --type ios -f "$SIGNED_IPA" --apiKey "$APP_STORE_KEY_ID" --apiIssuer "$APP_STORE_ISSUER_ID"
-          echo "TestFlight upload initiated successfully!"
 
+          echo "Setting up App Store Connect API Key..."
+          mkdir -p ~/.appstoreconnect/private_keys ~/.private_keys
+          echo -n "$APP_STORE_KEY_B64" | base64 --decode -o ~/.appstoreconnect/private_keys/AuthKey_${APP_STORE_KEY_ID}.p8
+          cp ~/.appstoreconnect/private_keys/AuthKey_${APP_STORE_KEY_ID}.p8 ~/.private_keys/
+
+          echo "Validating application binary with Apple App Store Connect..."
+          xcrun altool --validate-app --type ios -f "$SIGNED_IPA" --apiKey "$APP_STORE_KEY_ID" --apiIssuer "$APP_STORE_ISSUER_ID"
+
+          echo "Uploading $SIGNED_IPA to Apple App Store Connect / TestFlight..."
+          xcrun altool --upload-app --type ios -f "$SIGNED_IPA" --apiKey "$APP_STORE_KEY_ID" --apiIssuer "$APP_STORE_ISSUER_ID"
+
+          echo "::notice title=App Store Upload Successful::App successfully uploaded to App Store Connect / TestFlight!"

@@ -76,6 +76,11 @@ localhost_preview/
 public_demo/
 .system_generated/
 
+# Built artifacts & packages
+*.apk
+*.aab
+*.ipa
+
 # Widget Preview related
 .widget_preview/
 
