@@ -67,6 +67,7 @@ jobs:
           APPLE_CERT_B64: ${{ secrets.APPLE_CERTIFICATE_BASE64 || secrets.BUILD_CERTIFICATE_BASE64 }}
           APPLE_CERT_PASS: ${{ secrets.APPLE_CERTIFICATE_PASSWORD || secrets.P12_PASSWORD }}
           APPLE_PROV_B64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 || secrets.BUILD_PROVISION_PROFILE_BASE64 }}
+          KEYCHAIN_PASSWORD: "phasetwo_keychain_pass"
         run: |
           if [ -n "$APPLE_CERT_B64" ] && [ -n "$APPLE_PROV_B64" ]; then
             echo "Apple Developer signing credentials detected! Setting up production signing..."
@@ -74,26 +75,57 @@ jobs:
             PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
             KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
+            echo "Decoding Apple Certificate and Provisioning Profile..."
             echo -n "$APPLE_CERT_B64" | base64 --decode > $CERT_PATH
             echo -n "$APPLE_PROV_B64" | base64 --decode > $PP_PATH
 
-            security create-keychain -p "phasetwo_temp" $KEYCHAIN_PATH
-            security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-            security unlock-keychain -p "phasetwo_temp" $KEYCHAIN_PATH
+            # Ensure .p12 is 100% compatible with macOS Keychain using native LibreSSL
+            if openssl pkcs12 -in $CERT_PATH -nodes -passin "pass:$APPLE_CERT_PASS" -out $RUNNER_TEMP/cert_bundle.pem 2>/dev/null; then
+              echo "Re-exporting PKCS#12 via macOS LibreSSL for native Keychain compatibility..."
+              /usr/bin/openssl pkcs12 -export -in $RUNNER_TEMP/cert_bundle.pem -out $CERT_PATH -passout "pass:$APPLE_CERT_PASS"
+            fi
 
+            echo "Setting up temporary signing keychain..."
+            security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+            security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+            security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+            echo "Importing certificate into keychain..."
             security import $CERT_PATH -P "$APPLE_CERT_PASS" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
             security list-keychains -d user -s $KEYCHAIN_PATH $(security list-keychains -d user | tr -d '"')
-            security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "phasetwo_temp" $KEYCHAIN_PATH
+            security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH || true
 
+            echo "=== Code Signing Identities in Keychain ==="
+            security find-identity -v -p codesigning $KEYCHAIN_PATH
+
+            echo "Installing Provisioning Profile..."
             mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-            cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/
+            PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" /dev/stdin <<< $(security cms -D -i $PP_PATH 2>/dev/null) 2>/dev/null || echo "")
+            if [ -n "$PROFILE_UUID" ]; then
+              echo "Provisioning Profile UUID: $PROFILE_UUID"
+              cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/${PROFILE_UUID}.mobileprovision
+            fi
+            cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/PhaseTwo.mobileprovision
+            cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/embedded.mobileprovision
 
-            echo "Building signed iOS archive and exporting IPA..."
-            flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
+            echo "=== Installed Provisioning Profiles ==="
+            ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
+
+            echo "Building signed iOS IPA..."
+            set -o pipefail
+            flutter build ipa --release --export-options-plist=ios/ExportOptions.plist 2>&1 | tee build_ipa.log
             echo "SIGNED_BUILD=true" >> $GITHUB_ENV
           else
             echo "No Apple signing credentials provided. Falling back to unsigned build packaging..."
             echo "SIGNED_BUILD=false" >> $GITHUB_ENV
+          fi
+
+      - name: Diagnostic Log on IPA Build Failure
+        if: failure()
+        run: |
+          if [ -f build_ipa.log ]; then
+            echo "=== Tail of build_ipa.log ==="
+            tail -n 50 build_ipa.log
           fi
 
       - name: 8. Fallback Unsigned Build Packaging (If No Signing Credentials)
@@ -165,6 +197,12 @@ jobs:
           xcrun altool --validate-app --type ios -f "$SIGNED_IPA" --apiKey "$APP_STORE_KEY_ID" --apiIssuer "$APP_STORE_ISSUER_ID"
 
           echo "Uploading $SIGNED_IPA to Apple App Store Connect / TestFlight..."
+          xcrun altool --upload-package "$SIGNED_IPA" \
+            --type ios \
+            --apple-id "6831484242" \
+            --bundle-id "ca.phasetwo.phasetwo" \
+            --apiKey "$APP_STORE_KEY_ID" \
+            --apiIssuer "$APP_STORE_ISSUER_ID" || \
           xcrun altool --upload-app --type ios -f "$SIGNED_IPA" --apiKey "$APP_STORE_KEY_ID" --apiIssuer "$APP_STORE_ISSUER_ID"
 
           echo "::notice title=App Store Upload Successful::App successfully uploaded to App Store Connect / TestFlight!"
