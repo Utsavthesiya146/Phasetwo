@@ -346,7 +346,10 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = VX698YBG86;
+				PROVISIONING_PROFILE_SPECIFIER = PhaseTwo;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -385,6 +388,10 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = ca.phasetwo.phasetwo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = VX698YBG86;
+				PROVISIONING_PROFILE_SPECIFIER = PhaseTwo;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -525,7 +532,10 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = VX698YBG86;
+				PROVISIONING_PROFILE_SPECIFIER = PhaseTwo;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -566,6 +576,10 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = ca.phasetwo.phasetwo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = VX698YBG86;
+				PROVISIONING_PROFILE_SPECIFIER = PhaseTwo;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -588,6 +602,10 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = ca.phasetwo.phasetwo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = VX698YBG86;
+				PROVISIONING_PROFILE_SPECIFIER = PhaseTwo;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
