@@ -4,7 +4,7 @@
 **Android Application ID / Package Name:** `ca.phasetwo.phasetwo`  
 **iOS Bundle Identifier:** `ca.phasetwo.phasetwo`  
 **Target Platform:** Android & iOS  
-**Release Version:** `1.0.0` (Build `2`) — Google Play Compliant (No `READ_MEDIA_IMAGES` dependency)  
+**Release Version:** `1.0.0` (Build `3`) — Production Auth Form Synchronization & Apple Review Safe Guard  
 **Backend / Production Domain:** `https://www.phasetwo.ca/`  
 **Design System:** Approved Option B — PhaseTwo Modern Dynamic  
 

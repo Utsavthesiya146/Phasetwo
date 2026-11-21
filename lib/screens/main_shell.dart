@@ -174,7 +174,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
       if (pathLower.contains('gigs')) {
         return 'PhaseTwo · Flexible Gigs';
       }
-      if (pathLower.contains('candidate') || pathLower.contains('applied')) {
+      if (pathLower.contains('candidate') || pathLower.contains('applied') || pathLower.contains('user')) {
         return 'PhaseTwo · Candidate Portal';
       }
       if (pathLower.contains('company') || pathLower.contains('recruiter')) {

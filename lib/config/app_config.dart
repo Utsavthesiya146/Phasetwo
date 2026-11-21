@@ -81,8 +81,8 @@ class AppConfig {
   static const String contactUrl = 'https://www.phasetwo.ca/contact';
   static const String blogsUrl = 'https://www.phasetwo.ca/Blogs';
   static const String assistanceUrl = 'https://www.phasetwo.ca/Assistance';
-  static const String candidateDashboardUrl = 'https://www.phasetwo.ca/candidate/dashboard';
-  static const String employerDashboardUrl = 'https://www.phasetwo.ca/employer/dashboard';
+  static const String candidateDashboardUrl = 'https://www.phasetwo.ca/user/Dashboard';
+  static const String employerDashboardUrl = 'https://www.phasetwo.ca/company/dashboard';
   static const String privacyUrl = 'https://www.phasetwo.ca/privacy_policy';
   static const String termsUrl = 'https://www.phasetwo.ca/terms_conditions';
   static const String accountDeletionUrl = 'https://www.phasetwo.ca/contact';

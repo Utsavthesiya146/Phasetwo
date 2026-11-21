@@ -160,7 +160,9 @@ class AuthSessionService {
     }
 
     // 3. Detect Reliable Candidate Authentication Signal
-    if (lower.contains('/candidate/dashboard') ||
+    if (lower.contains('/user/dashboard') ||
+        lower.contains('/user/') ||
+        lower.contains('/candidate/dashboard') ||
         lower.contains('/candidate/profile') ||
         lower.contains('/candidate/applied_jobs') ||
         lower.contains('/candidate_applied_jobs')) {
